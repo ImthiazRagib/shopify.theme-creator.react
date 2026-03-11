@@ -17,7 +17,7 @@ export function Button({
   const sizes = {
     default: 'h-9 px-4 py-2 text-sm gap-2',
     sm: 'h-7 px-2.5 py-1.5 text-xs gap-1.5',
-    icon: 'h-8 w-8 p-0',
+    icon: 'h-9 w-9 p-0 shrink-0',
   };
 
   return (

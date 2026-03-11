@@ -14,6 +14,9 @@ import {
   ChevronDown,
   Package,
   Palette,
+  Paintbrush,
+  Layers,
+  RotateCcw,
 } from 'lucide-react';
 import { exportThemeAsZip } from './themeExport';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -690,20 +693,20 @@ export default function LiquidEditorApp() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant={viewMode === 'preview' ? 'default' : 'outline'} onClick={() => setViewMode('preview')}>
-                  <Eye className="mr-2 h-4 w-4" /> Preview
+                <Button size="icon" variant={viewMode === 'preview' ? 'default' : 'outline'} onClick={() => setViewMode('preview')} title="Preview">
+                  <Eye className="h-4 w-4" />
                 </Button>
-                <Button variant={viewMode === 'code' ? 'default' : 'outline'} onClick={() => setViewMode('code')}>
-                  <Code2 className="mr-2 h-4 w-4" /> Code
+                <Button size="icon" variant={viewMode === 'code' ? 'default' : 'outline'} onClick={() => setViewMode('code')} title="Code">
+                  <Code2 className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" onClick={() => copyText(liquidTemplate)}>
-                  <Copy className="mr-2 h-4 w-4" /> Copy Liquid
+                <Button size="icon" variant="outline" onClick={() => copyText(liquidTemplate)} title="Copy Liquid">
+                  <Copy className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" onClick={() => downloadFile('page-template.liquid', liquidTemplate)}>
-                  <Download className="mr-2 h-4 w-4" /> Export Liquid
+                <Button size="icon" variant="outline" onClick={() => downloadFile('page-template.liquid', liquidTemplate)} title="Export Liquid">
+                  <Download className="h-4 w-4" />
                 </Button>
-                <Button variant="default" onClick={() => exportThemeAsZip(sections, themeColors)}>
-                  <Package className="mr-2 h-4 w-4" /> Export ZIP (Shopify)
+                <Button size="icon" variant="default" onClick={() => exportThemeAsZip(sections, themeColors)} title="Export ZIP (Shopify)">
+                  <Package className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -726,7 +729,7 @@ export default function LiquidEditorApp() {
                     className={`border bg-white p-3 transition ${selectedSection?.id === section.id ? 'border-zinc-900 ring-2 ring-zinc-900/10' : 'border-zinc-200 hover:border-zinc-400'}`}
                   >
                     <div className="flex items-start gap-3">
-                      <button className="mt-1 cursor-grab text-zinc-400">
+                      <button type="button" className="mt-1 cursor-grab text-zinc-400" title="Drag to reorder">
                         <GripVertical className="h-4 w-4" />
                       </button>
                       <div className="min-w-0 flex-1">
@@ -737,13 +740,13 @@ export default function LiquidEditorApp() {
                         <p className="mt-1 truncate text-xs text-zinc-500">{section.type}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'up'); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'up'); }} title="Move up">
                           <ChevronUp className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'down'); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'down'); }} title="Move down">
                           <ChevronDown className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700" onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700" onClick={(e) => { e.stopPropagation(); removeSection(section.id); }} title="Remove section">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -773,8 +776,8 @@ export default function LiquidEditorApp() {
                     <div>
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-sm font-semibold">Liquid Template</p>
-                        <Button variant="outline" onClick={() => copyText(liquidTemplate)}>
-                          <Copy className="mr-2 h-4 w-4" /> Copy
+                        <Button size="icon" variant="outline" onClick={() => copyText(liquidTemplate)} title="Copy Liquid">
+                          <Copy className="h-4 w-4" />
                         </Button>
                       </div>
                       <pre className="overflow-x-auto border border-zinc-800 bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{liquidTemplate}</pre>
@@ -782,8 +785,8 @@ export default function LiquidEditorApp() {
                     <div>
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-sm font-semibold">JSON Template</p>
-                        <Button variant="outline" onClick={() => copyText(jsonTemplate)}>
-                          <Copy className="mr-2 h-4 w-4" /> Copy
+                        <Button size="icon" variant="outline" onClick={() => copyText(jsonTemplate)} title="Copy JSON">
+                          <Copy className="h-4 w-4" />
                         </Button>
                       </div>
                       <pre className="overflow-x-auto border border-zinc-800 bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{jsonTemplate}</pre>
@@ -813,15 +816,15 @@ export default function LiquidEditorApp() {
                 <div className="space-y-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Colors</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={() => applyThemeToSection(selectedSection.id, 'primary')}>
-                      Apply Primary
+                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => applyThemeToSection(selectedSection.id, 'primary')} title="Apply Primary">
+                      <Paintbrush className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyThemeToSection(selectedSection.id, 'secondary')}>
-                      Apply Secondary
+                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => applyThemeToSection(selectedSection.id, 'secondary')} title="Apply Secondary">
+                      <Layers className="h-4 w-4" />
                     </Button>
                     {Object.keys(selectedSection.styleOverrides || {}).length > 0 && (
-                      <Button variant="ghost" size="sm" onClick={() => clearStyleOverrides(selectedSection.id)}>
-                        Reset
+                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => clearStyleOverrides(selectedSection.id)} title="Reset colors">
+                        <RotateCcw className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
