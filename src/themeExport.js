@@ -87,8 +87,7 @@ const SECTION_SCHEMAS = {
     name: 'Testimonials',
     settings: [
       { type: 'text', id: 'heading', label: 'Heading', default: 'What customers say' },
-      { type: 'textarea', id: 'quote', label: 'Quote', default: 'Fast delivery, clean design, and smooth shopping experience.' },
-      { type: 'text', id: 'author', label: 'Author', default: 'A happy customer' },
+      { type: 'textarea', id: 'testimonials', label: 'Testimonials (JSON)', default: '[{"quote":"Fast delivery, clean design, and smooth shopping experience.","author":"A happy customer"}]' },
       { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
       { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
@@ -218,12 +217,67 @@ function generateSectionLiquid(type) {
     </div>
   </div>
 </section>`,
-    testimonial: `<section class="testimonial" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
-  <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
+    testimonial: `<section class="testimonial testimonial-slider" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %} id="testimonial-{{ section.id | replace: '-', '_' }}">
+  <div class="page-width testimonial-slider__inner" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
     <p class="testimonial__label">{{ section.settings.heading }}</p>
-    <blockquote class="testimonial__quote">"{{ section.settings.quote }}"</blockquote>
-    <p class="testimonial__author" style="opacity: 0.9;">— {{ section.settings.author }}</p>
+    <div class="testimonial-slider__content">
+      <blockquote class="testimonial__quote testimonial-slider__quote"></blockquote>
+      <p class="testimonial__author testimonial-slider__author" style="opacity: 0.9;"></p>
+    </div>
+    <div class="testimonial-slider__nav" style="display: none;">
+      <button type="button" class="testimonial-slider__prev" aria-label="Previous">‹</button>
+      <button type="button" class="testimonial-slider__next" aria-label="Next">›</button>
+    </div>
+    <div class="testimonial-slider__dots"></div>
   </div>
+  <script type="application/json" id="testimonial-data-{{ section.id | replace: '-', '_' }}">{{ section.settings.testimonials | default: '[]' | json }}</script>
+  <script>
+    (function() {
+      var scriptEl = document.getElementById('testimonial-data-{{ section.id | replace: "-", "_" }}');
+      var sectionEl = scriptEl ? scriptEl.closest('section') : null;
+      if (!scriptEl || !sectionEl) return;
+      var testimonials;
+      try {
+        var raw = JSON.parse(scriptEl.textContent);
+        testimonials = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []);
+      } catch(e) { testimonials = []; }
+      if (!Array.isArray(testimonials) || testimonials.length === 0) {
+        var q = sectionEl.querySelector('.testimonial-slider__quote');
+        var a = sectionEl.querySelector('.testimonial-slider__author');
+        if (q) q.textContent = '"Add testimonials in the theme editor."';
+        if (a) a.textContent = '—';
+        return;
+      }
+      var inner = sectionEl.querySelector('.testimonial-slider__inner');
+      var quoteEl = inner.querySelector('.testimonial-slider__quote');
+      var authorEl = inner.querySelector('.testimonial-slider__author');
+      var prevBtn = inner.querySelector('.testimonial-slider__prev');
+      var nextBtn = inner.querySelector('.testimonial-slider__next');
+      var dotsEl = inner.querySelector('.testimonial-slider__dots');
+      var idx = 0;
+      function render() {
+        var t = testimonials[idx] || {};
+        quoteEl.textContent = '"' + (t.quote || '') + '"';
+        authorEl.textContent = '\u2014 ' + (t.author || '');
+      }
+      function updateDots() {
+        dotsEl.querySelectorAll('.testimonial-slider__dot').forEach(function(btn, i) { btn.classList.toggle('active', i === idx); });
+      }
+      if (testimonials.length > 1) {
+        inner.querySelector('.testimonial-slider__nav').style.display = 'flex';
+        prevBtn.onclick = function() { idx = (idx - 1 + testimonials.length) % testimonials.length; render(); updateDots(); };
+        nextBtn.onclick = function() { idx = (idx + 1) % testimonials.length; render(); updateDots(); };
+        dotsEl.innerHTML = testimonials.map(function(_, i) {
+          return '<button type="button" class="testimonial-slider__dot' + (i === 0 ? ' active' : '') + '" aria-label="Slide ' + (i+1) + '"></button>';
+        }).join('');
+        dotsEl.querySelectorAll('.testimonial-slider__dot').forEach(function(btn, i) {
+          btn.onclick = function() { idx = i; render(); updateDots(); };
+        });
+      }
+      render();
+      updateDots();
+    })();
+  </script>
 </section>`,
     newsletter: `<section class="newsletter" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
@@ -297,10 +351,40 @@ const ASSETS_BASE_CSS = `/* Theme Creator - Base Styles */
 .section-heading { font-size: 1.25rem; font-weight: 600; margin: 0 0 20px; }
 .product-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
-.testimonial { padding: 48px 0; }
-.testimonial__label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #6b7280; margin: 0; }
-.testimonial__quote { font-size: 1.25rem; font-weight: 500; margin: 16px 0; line-height: 1.5; }
-.testimonial__author { font-size: 14px; color: #6b7280; margin: 16px 0 0; }
+.testimonial { padding: 24px 0; position: relative; }
+.testimonial__label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #6b7280; margin: 0; }
+.testimonial__quote { font-size: 1rem; font-weight: 500; margin: 12px 0; line-height: 1.5; min-height: 2.5rem; }
+.testimonial__author { font-size: 12px; color: #6b7280; margin: 12px 0 0; }
+.testimonial-slider__inner { position: relative; padding: 0 36px; }
+.testimonial-slider__nav { display: flex; gap: 4px; position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); justify-content: space-between; pointer-events: none; padding: 0 8px; }
+.testimonial-slider__nav button { pointer-events: auto; padding: 6px 8px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; font-size: 1rem; line-height: 1; transition: background 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.testimonial-slider__nav button:hover { background: #f9fafb; }
+.testimonial-slider__dots { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+.testimonial-slider__dot { width: 6px; height: 6px; border: none; border-radius: 50%; background: #d1d5db; cursor: pointer; padding: 0; transition: background 0.2s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.testimonial-slider__dot:hover { background: #9ca3af; }
+.testimonial-slider__dot.active { background: #111827; }
+@media (min-width: 640px) {
+  .testimonial { padding: 36px 0; }
+  .testimonial__label { font-size: 11px; }
+  .testimonial__quote { font-size: 1.125rem; margin: 14px 0; min-height: 2.75rem; }
+  .testimonial__author { font-size: 13px; margin: 14px 0 0; }
+  .testimonial-slider__inner { padding: 0 44px; }
+  .testimonial-slider__nav { padding: 0 12px; gap: 8px; }
+  .testimonial-slider__nav button { padding: 8px 10px; font-size: 1.125rem; }
+  .testimonial-slider__dots { margin-top: 20px; gap: 8px; }
+  .testimonial-slider__dot { width: 7px; height: 7px; }
+}
+@media (min-width: 768px) {
+  .testimonial { padding: 48px 0; }
+  .testimonial__label { font-size: 12px; }
+  .testimonial__quote { font-size: 1.25rem; margin: 16px 0; min-height: 3rem; }
+  .testimonial__author { font-size: 14px; margin: 16px 0 0; }
+  .testimonial-slider__inner { padding: 0 52px; }
+  .testimonial-slider__nav { padding: 0 20px; }
+  .testimonial-slider__nav button { padding: 8px 12px; font-size: 1.25rem; }
+  .testimonial-slider__dots { margin-top: 24px; }
+  .testimonial-slider__dot { width: 8px; height: 8px; }
+}
 .newsletter { padding: 48px 0; background: #111; color: #fff; }
 .newsletter__heading { font-size: 1.5rem; font-weight: 600; margin: 0; }
 .newsletter__body { margin-top: 12px; font-size: 14px; color: #d1d5db; }
@@ -413,6 +497,15 @@ export async function exportThemeAsZip(sections, themeColors = {}) {
     if (section.type === 'announcement-bar') {
       settings.color = text;
       delete settings.text_color;
+    }
+    if (section.type === 'testimonial') {
+      let testimonials = settings.testimonials;
+      if (!Array.isArray(testimonials) && (settings.quote || settings.author)) {
+        testimonials = [{ quote: settings.quote || '', author: settings.author || '' }];
+        delete settings.quote;
+        delete settings.author;
+      }
+      settings.testimonials = Array.isArray(testimonials) ? JSON.stringify(testimonials) : (typeof testimonials === 'string' ? testimonials : '[]');
     }
     templateData.sections[sectionId] = {
       type: section.type,
