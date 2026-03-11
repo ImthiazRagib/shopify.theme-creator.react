@@ -254,7 +254,7 @@ function FieldRenderer({ field, value, onChange }) {
       <button
         type="button"
         onClick={() => onChange(!value)}
-        className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${value ? 'border-black bg-black text-white' : 'border-zinc-200 bg-white text-zinc-900'}`}
+        className={`w-full border px-3 py-2 text-left text-sm transition ${value ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-200 bg-white text-zinc-900'}`}
       >
         {value ? 'Enabled' : 'Disabled'}
       </button>
@@ -266,7 +266,7 @@ function FieldRenderer({ field, value, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none"
+        className="w-full border border-zinc-200 bg-white px-3 py-2 text-sm outline-none"
       >
         {field.options.map((option) => (
           <option key={option} value={option}>
@@ -291,7 +291,7 @@ function SectionPreview({ section }) {
 
   if (type === 'announcement-bar') {
     return (
-      <div className="rounded-2xl px-4 py-3 text-sm" style={{ background: settings.background, color: settings.color }}>
+      <div className="px-4 py-3 text-sm" style={{ background: settings.background, color: settings.color }}>
         {settings.text}
       </div>
     );
@@ -299,7 +299,7 @@ function SectionPreview({ section }) {
 
   if (type === 'header') {
     return (
-      <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+      <div className="border border-zinc-200 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-lg font-semibold">{settings.logoText}</div>
           <div className="flex flex-wrap gap-4 text-sm text-zinc-600">
@@ -325,10 +325,10 @@ function SectionPreview({ section }) {
         : 'items-start text-left';
 
     return (
-      <div className={`flex min-h-[260px] flex-col justify-center rounded-[28px] border border-zinc-200 bg-gradient-to-br from-zinc-50 to-zinc-100 p-8 ${alignment}`}>
+      <div className={`flex min-h-[260px] flex-col justify-center border border-zinc-200 bg-zinc-50 p-8 ${alignment}`}>
         <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-zinc-900">{settings.heading}</h2>
         <p className="mt-3 max-w-2xl text-sm text-zinc-600">{settings.subheading}</p>
-        <button className="mt-6 rounded-2xl bg-zinc-900 px-5 py-3 text-sm font-medium text-white">
+        <button className="mt-6 border border-zinc-900 bg-zinc-900 px-5 py-3 text-sm font-medium text-white">
           {settings.buttonText}
         </button>
       </div>
@@ -337,7 +337,7 @@ function SectionPreview({ section }) {
 
   if (type === 'rich-text') {
     return (
-      <div className="rounded-[28px] border border-zinc-200 bg-white p-8">
+      <div className="border border-zinc-200 bg-white p-8">
         <h3 className="text-2xl font-semibold text-zinc-900">{settings.heading}</h3>
         <p className="mt-3 text-sm leading-6 text-zinc-600">{settings.body}</p>
       </div>
@@ -346,11 +346,11 @@ function SectionPreview({ section }) {
 
   if (type === 'image-with-text') {
     return (
-      <div className="grid gap-4 rounded-[28px] border border-zinc-200 bg-white p-4 md:grid-cols-2 md:p-6">
+      <div className="grid gap-4 border border-zinc-200 bg-white p-4 md:grid-cols-2 md:p-6">
         <img
           src={settings.imageUrl}
           alt={settings.heading}
-          className="h-64 w-full rounded-2xl object-cover"
+          className="h-64 w-full object-cover"
         />
         <div className="flex flex-col justify-center">
           <h3 className="text-2xl font-semibold text-zinc-900">{settings.heading}</h3>
@@ -363,14 +363,14 @@ function SectionPreview({ section }) {
   if (type === 'featured-collection' || type === 'product-grid') {
     const count = Math.max(1, Math.min(Number(settings.productsToShow || 4), 8));
     return (
-      <div className="rounded-[28px] border border-zinc-200 bg-white p-6">
+      <div className="border border-zinc-200 bg-white p-6">
         <h3 className="text-xl font-semibold text-zinc-900">{settings.heading}</h3>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: count }).map((_, idx) => (
-            <div key={idx} className="rounded-2xl border border-zinc-200 p-3">
-              <div className="h-28 rounded-xl bg-zinc-100" />
-              <div className="mt-3 h-4 w-2/3 rounded bg-zinc-200" />
-              <div className="mt-2 h-3 w-1/3 rounded bg-zinc-100" />
+            <div key={idx} className="border border-zinc-200 p-3">
+              <div className="h-28 bg-zinc-100" />
+              <div className="mt-3 h-4 w-2/3 bg-zinc-200" />
+              <div className="mt-2 h-3 w-1/3 bg-zinc-100" />
             </div>
           ))}
         </div>
@@ -380,7 +380,7 @@ function SectionPreview({ section }) {
 
   if (type === 'testimonial') {
     return (
-      <div className="rounded-[28px] border border-zinc-200 bg-white p-8">
+      <div className="border border-zinc-200 bg-white p-8">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">{settings.heading}</p>
         <blockquote className="mt-4 text-xl font-medium leading-8 text-zinc-900">“{settings.quote}”</blockquote>
         <p className="mt-4 text-sm text-zinc-600">— {settings.author}</p>
@@ -390,17 +390,17 @@ function SectionPreview({ section }) {
 
   if (type === 'newsletter') {
     return (
-      <div className="rounded-[28px] border border-zinc-200 bg-zinc-900 p-8 text-white">
+      <div className="border border-zinc-900 bg-zinc-900 p-8 text-white">
         <h3 className="text-2xl font-semibold">{settings.heading}</h3>
         <p className="mt-3 max-w-xl text-sm text-zinc-300">{settings.body}</p>
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <input
             disabled
-            className="h-12 flex-1 rounded-2xl border border-zinc-700 bg-zinc-800 px-4 text-sm text-white"
+            className="h-12 flex-1 border border-zinc-700 bg-zinc-800 px-4 text-sm text-white"
             value={settings.placeholder}
             readOnly
           />
-          <button className="rounded-2xl bg-white px-5 py-3 text-sm font-medium text-zinc-900">
+          <button className="border border-white bg-white px-5 py-3 text-sm font-medium text-zinc-900">
             {settings.buttonText}
           </button>
         </div>
@@ -410,7 +410,7 @@ function SectionPreview({ section }) {
 
   if (type === 'footer') {
     return (
-      <div className="rounded-[28px] border border-zinc-200 bg-white p-6">
+      <div className="border border-zinc-200 bg-white p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-zinc-600">{settings.copyright}</p>
           <div className="flex flex-wrap gap-4 text-sm text-zinc-500">
@@ -508,7 +508,7 @@ export default function LiquidEditorApp() {
   const jsonTemplate = useMemo(() => generateJsonTemplate(sections), [sections]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50 text-zinc-900">
+    <div className="min-h-screen bg-zinc-100 text-zinc-900">
       <div className="mx-auto grid max-w-[1600px] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)_340px]">
         <Card>
           <CardHeader>
@@ -526,7 +526,7 @@ export default function LiquidEditorApp() {
                     <button
                       key={component.type}
                       onClick={() => addSection(component)}
-                      className="flex w-full items-center justify-between rounded-2xl border-2 border-violet-200 bg-white px-3 py-3 text-left transition hover:border-violet-400 hover:bg-violet-50 hover:shadow-md"
+                      className="flex w-full items-center justify-between border border-zinc-200 bg-white px-3 py-3 text-left transition hover:border-zinc-400 hover:bg-zinc-50"
                     >
                       <div>
                         <p className="text-sm font-medium">{component.label}</p>
@@ -551,19 +551,19 @@ export default function LiquidEditorApp() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant={viewMode === 'preview' ? 'default' : 'outline'} onClick={() => setViewMode('preview')} className="rounded-2xl">
+                <Button variant={viewMode === 'preview' ? 'default' : 'outline'} onClick={() => setViewMode('preview')}>
                   <Eye className="mr-2 h-4 w-4" /> Preview
                 </Button>
-                <Button variant={viewMode === 'code' ? 'default' : 'outline'} onClick={() => setViewMode('code')} className="rounded-2xl">
+                <Button variant={viewMode === 'code' ? 'default' : 'outline'} onClick={() => setViewMode('code')}>
                   <Code2 className="mr-2 h-4 w-4" /> Code
                 </Button>
-                <Button variant="outline" className="rounded-2xl" onClick={() => copyText(liquidTemplate)}>
+                <Button variant="outline" onClick={() => copyText(liquidTemplate)}>
                   <Copy className="mr-2 h-4 w-4" /> Copy Liquid
                 </Button>
-                <Button variant="outline" className="rounded-2xl" onClick={() => downloadFile('page-template.liquid', liquidTemplate)}>
+                <Button variant="outline" onClick={() => downloadFile('page-template.liquid', liquidTemplate)}>
                   <Download className="mr-2 h-4 w-4" /> Export Liquid
                 </Button>
-                <Button variant="default" className="rounded-2xl" onClick={() => exportThemeAsZip(sections)}>
+                <Button variant="default" onClick={() => exportThemeAsZip(sections)}>
                   <Package className="mr-2 h-4 w-4" /> Export ZIP (Shopify)
                 </Button>
               </div>
@@ -584,7 +584,7 @@ export default function LiquidEditorApp() {
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={() => onDrop(section.id)}
                     onClick={() => setSelectedId(section.id)}
-                    className={`rounded-2xl border bg-white p-3 transition ${selectedSection?.id === section.id ? 'border-black ring-2 ring-black/5' : 'border-zinc-200 hover:border-zinc-400'}`}
+                    className={`border bg-white p-3 transition ${selectedSection?.id === section.id ? 'border-zinc-900 ring-2 ring-zinc-900/10' : 'border-zinc-200 hover:border-zinc-400'}`}
                   >
                     <div className="flex items-start gap-3">
                       <button className="mt-1 cursor-grab text-zinc-400">
@@ -593,18 +593,18 @@ export default function LiquidEditorApp() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-semibold">{section.label}</p>
-                          <Badge variant="secondary" className="rounded-full">#{index + 1}</Badge>
+                          <Badge variant="secondary">#{index + 1}</Badge>
                         </div>
                         <p className="mt-1 truncate text-xs text-zinc-500">{section.type}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'up'); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'up'); }}>
                           <ChevronUp className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-xl" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'down'); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); moveSection(section.id, 'down'); }}>
                           <ChevronDown className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-xl text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700" onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -620,9 +620,9 @@ export default function LiquidEditorApp() {
               </CardHeader>
               <CardContent>
                 {viewMode === 'preview' ? (
-                  <div className="space-y-4 rounded-[28px] bg-zinc-100 p-4">
+                  <div className="space-y-4 border border-zinc-200 bg-zinc-50 p-4">
                     {sections.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
+                      <div className="border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
                         Add components from the left panel to start building your page.
                       </div>
                     ) : (
@@ -634,20 +634,20 @@ export default function LiquidEditorApp() {
                     <div>
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-sm font-semibold">Liquid Template</p>
-                        <Button variant="outline" className="rounded-2xl" onClick={() => copyText(liquidTemplate)}>
+                        <Button variant="outline" onClick={() => copyText(liquidTemplate)}>
                           <Copy className="mr-2 h-4 w-4" /> Copy
                         </Button>
                       </div>
-                      <pre className="overflow-x-auto rounded-[24px] bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{liquidTemplate}</pre>
+                      <pre className="overflow-x-auto border border-zinc-800 bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{liquidTemplate}</pre>
                     </div>
                     <div>
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-sm font-semibold">JSON Template</p>
-                        <Button variant="outline" className="rounded-2xl" onClick={() => copyText(jsonTemplate)}>
+                        <Button variant="outline" onClick={() => copyText(jsonTemplate)}>
                           <Copy className="mr-2 h-4 w-4" /> Copy
                         </Button>
                       </div>
-                      <pre className="overflow-x-auto rounded-[24px] bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{jsonTemplate}</pre>
+                      <pre className="overflow-x-auto border border-zinc-800 bg-zinc-950 p-5 text-xs leading-6 text-zinc-100">{jsonTemplate}</pre>
                     </div>
                   </div>
                 )}
@@ -666,7 +666,7 @@ export default function LiquidEditorApp() {
           <CardContent>
             {selectedSection ? (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                <div className="border border-zinc-200 bg-zinc-50 p-4">
                   <p className="text-sm font-semibold">{selectedSection.label}</p>
                   <p className="mt-1 text-xs text-zinc-500">{selectedSection.type}</p>
                 </div>
@@ -682,7 +682,7 @@ export default function LiquidEditorApp() {
                   </div>
                 ))}
 
-                <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-4">
+                <div className="border border-dashed border-zinc-300 bg-white p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Rendered section call</p>
                   <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-all text-xs leading-6 text-zinc-700">
                     {generateSectionMarkup(selectedSection)}
@@ -690,7 +690,7 @@ export default function LiquidEditorApp() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
+              <div className="border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
                 Select a section to edit its fields.
               </div>
             )}
