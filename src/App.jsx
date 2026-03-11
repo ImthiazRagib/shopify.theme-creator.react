@@ -449,6 +449,17 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
 
 const DEFAULT_THEME = { primary: '#E94D4D', secondary: '#FDF8EE' };
 
+const COLOR_PALETTES = [
+  { name: 'Classic Red', primary: '#E94D4D', secondary: '#FDF8EE' },
+  { name: 'Ocean Blue', primary: '#2563eb', secondary: '#eff6ff' },
+  { name: 'Forest Green', primary: '#059669', secondary: '#ecfdf5' },
+  { name: 'Sunset', primary: '#ea580c', secondary: '#fff7ed' },
+  { name: 'Violet', primary: '#7c3aed', secondary: '#f5f3ff' },
+  { name: 'Slate', primary: '#475569', secondary: '#f8fafc' },
+  { name: 'Rose', primary: '#e11d48', secondary: '#fff1f2' },
+  { name: 'Teal', primary: '#0d9488', secondary: '#f0fdfa' },
+];
+
 export default function LiquidEditorApp() {
   const [themeColors, setThemeColors] = useState(DEFAULT_THEME);
   const [sections, setSections] = useState([
@@ -539,6 +550,29 @@ export default function LiquidEditorApp() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div>
+                <label className="mb-2 block text-xs font-medium text-zinc-600">Presets</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLOR_PALETTES.map((palette) => {
+                    const isActive = themeColors.primary?.toLowerCase() === palette.primary.toLowerCase() && themeColors.secondary?.toLowerCase() === palette.secondary.toLowerCase();
+                    return (
+                    <button
+                      key={palette.name}
+                      type="button"
+                      onClick={() => setThemeColors({ primary: palette.primary, secondary: palette.secondary })}
+                      className={`flex items-center gap-1.5 border px-2 py-1.5 text-xs font-medium transition hover:border-zinc-400 ${
+                        isActive ? 'border-zinc-900 ring-2 ring-zinc-900/10 bg-zinc-50' : 'border-zinc-200 bg-white hover:bg-zinc-50'
+                      }`}
+                      title={palette.name}
+                    >
+                      <span className="h-4 w-4 border border-zinc-200" style={{ background: palette.primary }} />
+                      <span className="h-4 w-4 border border-zinc-200" style={{ background: palette.secondary }} />
+                      <span className="hidden sm:inline text-zinc-700">{palette.name}</span>
+                    </button>
+                    );
+                  })}
+                </div>
+              </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-zinc-600">Primary</label>
                 <div className="flex items-center gap-2">
