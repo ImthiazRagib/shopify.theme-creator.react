@@ -190,6 +190,7 @@ function createInstance(component) {
     type: component.type,
     label: component.label,
     settings: { ...component.defaults },
+    styleOverrides: {},
   };
 }
 
@@ -300,14 +301,19 @@ const TEXT_ON_LIGHT = '#171717';
 const TEXT_MUTED = '#525252';
 
 function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary: '#FDF8EE' } }) {
-  const { type, settings } = section;
+  const { type, settings, styleOverrides = {} } = section;
   const primary = themeColors.primary || '#E94D4D';
   const secondary = themeColors.secondary || '#FDF8EE';
   const textOnPrimary = getContrastColor(primary);
+  const bg = styleOverrides.background?.trim() || undefined;
+  const textColor = styleOverrides.textColor?.trim() || undefined;
+
+  const resolveBg = (themeBg) => bg ?? themeBg;
+  const resolveText = (themeText) => textColor ?? themeText;
 
   if (type === 'announcement-bar') {
     return (
-      <div className="px-4 py-3 text-sm text-center font-medium" style={{ background: primary, color: textOnPrimary }}>
+      <div className="px-4 py-3 text-sm text-center font-medium" style={{ background: resolveBg(primary), color: resolveText(textOnPrimary) }}>
         {settings.text}
       </div>
     );
@@ -315,10 +321,10 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
 
   if (type === 'header') {
     return (
-      <div className="border-b border-zinc-200 bg-white px-5 py-4">
+      <div className="border-b border-zinc-200 px-5 py-4" style={{ background: resolveBg('#ffffff') }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-lg font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.logoText}</div>
-          <div className="flex flex-wrap gap-4 text-sm" style={{ color: TEXT_MUTED }}>
+          <div className="text-lg font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.logoText}</div>
+          <div className="flex flex-wrap gap-4 text-sm" style={{ color: resolveText(TEXT_MUTED) }}>
             {String(settings.menu)
               .split(',')
               .map((item) => item.trim())
@@ -341,9 +347,9 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
         : 'items-start text-left';
 
     return (
-      <div className={`flex min-h-[260px] flex-col justify-center p-8 ${alignment}`} style={{ background: secondary }}>
-        <h2 className="max-w-2xl text-3xl font-bold tracking-tight" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h2>
-        <p className="mt-3 max-w-2xl text-sm" style={{ color: TEXT_MUTED }}>{settings.subheading}</p>
+      <div className={`flex min-h-[260px] flex-col justify-center p-8 ${alignment}`} style={{ background: resolveBg(secondary) }}>
+        <h2 className="max-w-2xl text-3xl font-bold tracking-tight" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.heading}</h2>
+        <p className="mt-3 max-w-2xl text-sm" style={{ color: resolveText(TEXT_MUTED) }}>{settings.subheading}</p>
         <button className="mt-6 px-5 py-3 text-sm font-semibold" style={{ background: primary, color: textOnPrimary }}>
           {settings.buttonText}
         </button>
@@ -353,24 +359,24 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
 
   if (type === 'rich-text') {
     return (
-      <div className="border-b border-zinc-200 bg-white p-8">
-        <h3 className="text-2xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
-        <p className="mt-3 text-sm leading-6" style={{ color: TEXT_MUTED }}>{settings.body}</p>
+      <div className="border-b border-zinc-200 p-8" style={{ background: resolveBg('#ffffff') }}>
+        <h3 className="text-2xl font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.heading}</h3>
+        <p className="mt-3 text-sm leading-6" style={{ color: resolveText(TEXT_MUTED) }}>{settings.body}</p>
       </div>
     );
   }
 
   if (type === 'image-with-text') {
     return (
-      <div className="grid gap-4 border-b border-zinc-200 bg-white p-4 md:grid-cols-2 md:p-6">
+      <div className="grid gap-4 border-b border-zinc-200 p-4 md:grid-cols-2 md:p-6" style={{ background: resolveBg('#ffffff') }}>
         <img
           src={settings.imageUrl}
           alt={settings.heading}
           className="h-64 w-full object-cover"
         />
         <div className="flex flex-col justify-center">
-          <h3 className="text-2xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
-          <p className="mt-3 text-sm leading-6" style={{ color: TEXT_MUTED }}>{settings.body}</p>
+          <h3 className="text-2xl font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.heading}</h3>
+          <p className="mt-3 text-sm leading-6" style={{ color: resolveText(TEXT_MUTED) }}>{settings.body}</p>
         </div>
       </div>
     );
@@ -379,8 +385,8 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
   if (type === 'featured-collection' || type === 'product-grid') {
     const count = Math.max(1, Math.min(Number(settings.productsToShow || 4), 8));
     return (
-      <div className="border-b border-zinc-200 bg-white p-6">
-        <h3 className="text-xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
+      <div className="border-b border-zinc-200 p-6" style={{ background: resolveBg('#ffffff') }}>
+        <h3 className="text-xl font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.heading}</h3>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: count }).map((_, idx) => (
             <div key={idx} className="border border-zinc-200 p-3">
@@ -396,24 +402,24 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
 
   if (type === 'testimonial') {
     return (
-      <div className="border-b border-zinc-200 bg-white p-8">
+      <div className="border-b border-zinc-200 p-8" style={{ background: resolveBg('#ffffff') }}>
         <p className="text-sm font-medium uppercase tracking-[0.2em]" style={{ color: TEXT_MUTED }}>{settings.heading}</p>
         <blockquote className="mt-4 text-xl font-medium leading-8" style={{ color: TEXT_ON_LIGHT }}>“{settings.quote}”</blockquote>
-        <p className="mt-4 text-sm" style={{ color: TEXT_MUTED }}>— {settings.author}</p>
+        <p className="mt-4 text-sm" style={{ color: resolveText(TEXT_MUTED) }}>— {settings.author}</p>
       </div>
     );
   }
 
   if (type === 'newsletter') {
     return (
-      <div className="p-8" style={{ background: primary }}>
-        <h3 className="text-2xl font-semibold" style={{ color: textOnPrimary }}>{settings.heading}</h3>
-        <p className="mt-3 max-w-xl text-sm" style={{ color: textOnPrimary, opacity: 0.9 }}>{settings.body}</p>
+      <div className="p-8" style={{ background: resolveBg(primary) }}>
+        <h3 className="text-2xl font-semibold" style={{ color: resolveText(textOnPrimary) }}>{settings.heading}</h3>
+        <p className="mt-3 max-w-xl text-sm" style={{ color: resolveText(textOnPrimary), opacity: 0.9 }}>{settings.body}</p>
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <input
             disabled
             className="h-12 flex-1 border px-4 text-sm"
-            style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: textOnPrimary }}
+            style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: resolveText(textOnPrimary) }}
             value={settings.placeholder}
             readOnly
           />
@@ -427,10 +433,10 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
 
   if (type === 'footer') {
     return (
-      <div className="border-t border-zinc-200 bg-white p-6">
+      <div className="border-t border-zinc-200 p-6" style={{ background: resolveBg('#ffffff') }}>
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm" style={{ color: TEXT_MUTED }}>{settings.copyright}</p>
-          <div className="flex flex-wrap gap-4 text-sm" style={{ color: TEXT_MUTED }}>
+          <p className="text-sm" style={{ color: resolveText(TEXT_MUTED) }}>{settings.copyright}</p>
+          <div className="flex flex-wrap gap-4 text-sm" style={{ color: resolveText(TEXT_MUTED) }}>
             {String(settings.links)
               .split(',')
               .map((item) => item.trim())
@@ -496,6 +502,39 @@ export default function LiquidEditorApp() {
         section.id === id
           ? { ...section, settings: { ...section.settings, [key]: value } }
           : section
+      )
+    );
+  };
+
+  const updateStyleOverride = (id, key, value) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === id
+          ? { ...section, styleOverrides: { ...(section.styleOverrides || {}), [key]: value } }
+          : section
+      )
+    );
+  };
+
+  const applyThemeToSection = (id, variant) => {
+    const primary = themeColors.primary || '#E94D4D';
+    const secondary = themeColors.secondary || '#FDF8EE';
+    setSections((prev) =>
+      prev.map((section) => {
+        if (section.id !== id) return section;
+        const overrides = section.styleOverrides || {};
+        if (variant === 'primary') {
+          return { ...section, styleOverrides: { ...overrides, background: primary, textColor: getContrastColor(primary) } };
+        }
+        return { ...section, styleOverrides: { ...overrides, background: secondary, textColor: TEXT_ON_LIGHT } };
+      })
+    );
+  };
+
+  const clearStyleOverrides = (id) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === id ? { ...section, styleOverrides: {} } : section
       )
     );
   };
@@ -769,6 +808,61 @@ export default function LiquidEditorApp() {
                 <div className="border border-zinc-200 bg-zinc-50 p-4">
                   <p className="text-sm font-semibold">{selectedSection.label}</p>
                   <p className="mt-1 text-xs text-zinc-500">{selectedSection.type}</p>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Colors</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => applyThemeToSection(selectedSection.id, 'primary')}>
+                      Apply Primary
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => applyThemeToSection(selectedSection.id, 'secondary')}>
+                      Apply Secondary
+                    </Button>
+                    {Object.keys(selectedSection.styleOverrides || {}).length > 0 && (
+                      <Button variant="ghost" size="sm" onClick={() => clearStyleOverrides(selectedSection.id)}>
+                        Reset
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-zinc-600">Background</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={(selectedSection.styleOverrides || {}).background || '#ffffff'}
+                          onChange={(e) => updateStyleOverride(selectedSection.id, 'background', e.target.value)}
+                          className="h-9 w-12 shrink-0 cursor-pointer border border-zinc-200 bg-white p-0"
+                        />
+                        <input
+                          type="text"
+                          value={(selectedSection.styleOverrides || {}).background ?? ''}
+                          onChange={(e) => updateStyleOverride(selectedSection.id, 'background', e.target.value)}
+                          placeholder="Use theme"
+                          className="min-w-0 flex-1 border border-zinc-200 bg-white px-2 py-1.5 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-zinc-600">Text</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={(selectedSection.styleOverrides || {}).textColor || '#171717'}
+                          onChange={(e) => updateStyleOverride(selectedSection.id, 'textColor', e.target.value)}
+                          className="h-9 w-12 shrink-0 cursor-pointer border border-zinc-200 bg-white p-0"
+                        />
+                        <input
+                          type="text"
+                          value={(selectedSection.styleOverrides || {}).textColor ?? ''}
+                          onChange={(e) => updateStyleOverride(selectedSection.id, 'textColor', e.target.value)}
+                          placeholder="Use theme"
+                          className="min-w-0 flex-1 border border-zinc-200 bg-white px-2 py-1.5 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {(fieldConfigByType[selectedSection.type] || []).map((field) => (
