@@ -1,16 +1,33 @@
-# React + Vite
+# Shopify Theme Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A visual Liquid Section Editor for building Shopify theme pages. Add sections, configure them, preview the layout, and export a Shopify-ready theme ZIP or Liquid code.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Drag-and-drop section builder** — Reorder sections by dragging in the Page Structure panel
+- **Live preview** — See your layout as you edit
+- **Code view** — View generated Liquid and JSON templates
+- **Shopify-ready export** — Download a ZIP file ready to upload to Shopify Themes
+- **Component library** — 10 pre-built section types across 6 categories
 
-## React Compiler
+### Available Sections
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Category | Sections |
+|----------|----------|
+| **Header** | Announcement Bar, Header |
+| **Content** | Hero Banner, Rich Text, Image With Text |
+| **Commerce** | Featured Collection, Product Grid |
+| **Social Proof** | Testimonials |
+| **Marketing** | Newsletter |
+| **Footer** | Footer |
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Node.js** 18+ (or 20+ recommended)
+- **npm** or **yarn**
+
+## Installation
+
+1. Clone or download the project:
+   cd theme-creator
+   
