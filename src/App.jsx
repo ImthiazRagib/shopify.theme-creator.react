@@ -702,7 +702,7 @@ export default function LiquidEditorApp() {
                 <Button variant="outline" onClick={() => downloadFile('page-template.liquid', liquidTemplate)}>
                   <Download className="mr-2 h-4 w-4" /> Export Liquid
                 </Button>
-                <Button variant="default" onClick={() => exportThemeAsZip(sections)}>
+                <Button variant="default" onClick={() => exportThemeAsZip(sections, themeColors)}>
                   <Package className="mr-2 h-4 w-4" /> Export ZIP (Shopify)
                 </Button>
               </div>

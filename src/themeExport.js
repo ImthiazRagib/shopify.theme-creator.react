@@ -1,5 +1,14 @@
 import JSZip from 'jszip';
 
+function getContrastColor(hex) {
+  if (!hex || hex.length < 7) return '#ffffff';
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const luminance = 0.299 * r + 0.589 * g + 0.114 * b;
+  return luminance > 0.5 ? '#171717' : '#ffffff';
+}
+
 const SECTION_SCHEMAS = {
   'announcement-bar': {
     name: 'Announcement Bar',
@@ -15,6 +24,8 @@ const SECTION_SCHEMAS = {
       { type: 'text', id: 'logoText', label: 'Logo Text', default: 'Your Store' },
       { type: 'textarea', id: 'menu', label: 'Menu Items (comma separated)', default: 'Home, Shop, About, Contact' },
       { type: 'checkbox', id: 'sticky', label: 'Sticky Header', default: true },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   hero: {
@@ -29,6 +40,8 @@ const SECTION_SCHEMAS = {
         { value: 'center', label: 'Center' },
         { value: 'right', label: 'Right' },
       ]},
+      { type: 'color', id: 'background', label: 'Background', default: '#FDF8EE' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   'rich-text': {
@@ -36,6 +49,8 @@ const SECTION_SCHEMAS = {
     settings: [
       { type: 'text', id: 'heading', label: 'Heading', default: 'Tell your brand story' },
       { type: 'richtext', id: 'body', label: 'Body', default: 'Use this area to explain your brand, campaign, or featured collection.' },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   'image-with-text': {
@@ -44,6 +59,8 @@ const SECTION_SCHEMAS = {
       { type: 'text', id: 'heading', label: 'Heading', default: 'Crafted for modern commerce' },
       { type: 'richtext', id: 'body', label: 'Body', default: 'Pair strong content with visual merchandising sections.' },
       { type: 'text', id: 'imageUrl', label: 'Image URL (or use Theme Editor to pick image)', default: '' },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   'featured-collection': {
@@ -52,6 +69,8 @@ const SECTION_SCHEMAS = {
       { type: 'text', id: 'heading', label: 'Heading', default: 'Featured collection' },
       { type: 'text', id: 'collectionHandle', label: 'Collection handle (e.g. frontpage)', default: 'frontpage' },
       { type: 'range', id: 'productsToShow', label: 'Products to show', min: 1, max: 8, default: 4 },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   'product-grid': {
@@ -60,6 +79,8 @@ const SECTION_SCHEMAS = {
       { type: 'text', id: 'heading', label: 'Heading', default: 'Best sellers' },
       { type: 'range', id: 'columns', label: 'Columns', min: 2, max: 4, default: 4 },
       { type: 'range', id: 'productsToShow', label: 'Products to show', min: 2, max: 12, default: 8 },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   testimonial: {
@@ -68,6 +89,8 @@ const SECTION_SCHEMAS = {
       { type: 'text', id: 'heading', label: 'Heading', default: 'What customers say' },
       { type: 'textarea', id: 'quote', label: 'Quote', default: 'Fast delivery, clean design, and smooth shopping experience.' },
       { type: 'text', id: 'author', label: 'Author', default: 'A happy customer' },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#171717' },
     ],
   },
   newsletter: {
@@ -77,6 +100,8 @@ const SECTION_SCHEMAS = {
       { type: 'textarea', id: 'body', label: 'Body', default: 'Subscribe for offers, product drops, and store updates.' },
       { type: 'text', id: 'placeholder', label: 'Input Placeholder', default: 'Enter your email' },
       { type: 'text', id: 'buttonText', label: 'Button Text', default: 'Subscribe' },
+      { type: 'color', id: 'background', label: 'Background', default: '#E94D4D' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#ffffff' },
     ],
   },
   footer: {
@@ -84,6 +109,8 @@ const SECTION_SCHEMAS = {
     settings: [
       { type: 'text', id: 'copyright', label: 'Copyright', default: '© 2026 Your Store' },
       { type: 'textarea', id: 'links', label: 'Footer Links (comma separated)', default: 'Privacy Policy, Terms of Service, Contact' },
+      { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
+      { type: 'color', id: 'text_color', label: 'Text Color', default: '#525252' },
     ],
   },
 };
@@ -112,9 +139,9 @@ function generateSectionLiquid(type) {
     <p class="announcement-bar__text">{{ section.settings.text }}</p>
   </div>
 </div>`,
-    header: `<header class="section-header">
+    header: `<header class="section-header" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
-    <div class="header__inner">
+    <div class="header__inner" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
       <a href="/" class="header__logo">{{ section.settings.logoText }}</a>
       <nav class="header__nav">
         {% assign menu_items = section.settings.menu | split: ',' %}
@@ -125,20 +152,20 @@ function generateSectionLiquid(type) {
     </div>
   </div>
 </header>`,
-    hero: `<section class="hero hero--{{ section.settings.align }}">
+    hero: `<section class="hero hero--{{ section.settings.align }}" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
-    <h1 class="hero__heading">{{ section.settings.heading }}</h1>
-    <p class="hero__subheading">{{ section.settings.subheading }}</p>
+    <h1 class="hero__heading" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>{{ section.settings.heading }}</h1>
+    <p class="hero__subheading" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }}; opacity: 0.8;"{% endif %}>{{ section.settings.subheading }}</p>
     <a href="{{ section.settings.buttonLink }}" class="hero__button button">{{ section.settings.buttonText }}</a>
   </div>
 </section>`,
-    'rich-text': `<section class="rich-text">
+    'rich-text': `<section class="rich-text" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
-    <h2 class="rich-text__heading">{{ section.settings.heading }}</h2>
-    <div class="rich-text__body">{{ section.settings.body }}</div>
+    <h2 class="rich-text__heading" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>{{ section.settings.heading }}</h2>
+    <div class="rich-text__body" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }}; opacity: 0.9;"{% endif %}>{{ section.settings.body }}</div>
   </div>
 </section>`,
-    'image-with-text': `<section class="image-with-text">
+    'image-with-text': `<section class="image-with-text" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
     <div class="image-with-text__grid">
       <div class="image-with-text__media">
@@ -148,15 +175,15 @@ function generateSectionLiquid(type) {
           {{ 'image' | placeholder_svg_tag: 'placeholder' }}
         {% endif %}
       </div>
-      <div class="image-with-text__content">
+      <div class="image-with-text__content" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
         <h2 class="image-with-text__heading">{{ section.settings.heading }}</h2>
-        <div class="image-with-text__body">{{ section.settings.body }}</div>
+        <div class="image-with-text__body" style="opacity: 0.9;">{{ section.settings.body }}</div>
       </div>
     </div>
   </div>
 </section>`,
-    'featured-collection': `<section class="featured-collection">
-  <div class="page-width">
+    'featured-collection': `<section class="featured-collection" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
+  <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
     <h2 class="section-heading">{{ section.settings.heading }}</h2>
     <div class="product-grid">
       {% assign col = collections[section.settings.collectionHandle] | default: collections.frontpage %}
@@ -173,8 +200,8 @@ function generateSectionLiquid(type) {
     </div>
   </div>
 </section>`,
-    'product-grid': `<section class="product-grid-section">
-  <div class="page-width">
+    'product-grid': `<section class="product-grid-section" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
+  <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
     <h2 class="section-heading">{{ section.settings.heading }}</h2>
     <div class="product-grid product-grid--{{ section.settings.columns }}-col">
       {% assign col = collections.all | default: collections.frontpage %}
@@ -191,26 +218,26 @@ function generateSectionLiquid(type) {
     </div>
   </div>
 </section>`,
-    testimonial: `<section class="testimonial">
-  <div class="page-width">
+    testimonial: `<section class="testimonial" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
+  <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
     <p class="testimonial__label">{{ section.settings.heading }}</p>
     <blockquote class="testimonial__quote">"{{ section.settings.quote }}"</blockquote>
-    <p class="testimonial__author">— {{ section.settings.author }}</p>
+    <p class="testimonial__author" style="opacity: 0.9;">— {{ section.settings.author }}</p>
   </div>
 </section>`,
-    newsletter: `<section class="newsletter">
-  <div class="page-width">
+    newsletter: `<section class="newsletter" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
+  <div class="page-width" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
     <h2 class="newsletter__heading">{{ section.settings.heading }}</h2>
-    <p class="newsletter__body">{{ section.settings.body }}</p>
+    <p class="newsletter__body" style="opacity: 0.9;">{{ section.settings.body }}</p>
     {% form 'customer', class: 'newsletter__form' %}
       <input type="email" name="contact[email]" placeholder="{{ section.settings.placeholder }}" class="newsletter__input">
       <button type="submit" class="newsletter__button button">{{ section.settings.buttonText }}</button>
     {% endform %}
   </div>
 </section>`,
-    footer: `<footer class="section-footer">
+    footer: `<footer class="section-footer" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
-    <div class="footer__inner">
+    <div class="footer__inner" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
       <p class="footer__copyright">{{ section.settings.copyright }}</p>
       <div class="footer__links">
         {% assign link_items = section.settings.links | split: ',' %}
@@ -309,7 +336,55 @@ const SNIPPET_PRODUCT_CARD_PLACEHOLDER = `<div class="product-card product-card-
 
 const SECTION_TYPES = ['announcement-bar', 'header', 'hero', 'rich-text', 'image-with-text', 'featured-collection', 'product-grid', 'testimonial', 'newsletter', 'footer'];
 
-export async function exportThemeAsZip(sections) {
+const TEXT_ON_LIGHT = '#171717';
+const TEXT_MUTED = '#525252';
+
+function getEffectiveColors(section, themeColors = {}) {
+  const primary = themeColors.primary || '#E94D4D';
+  const secondary = themeColors.secondary || '#FDF8EE';
+  const textOnPrimary = getContrastColor(primary);
+  const overrides = section.styleOverrides || {};
+  const bg = overrides.background?.trim() || undefined;
+  const textColor = overrides.textColor?.trim() || undefined;
+
+  const resolveBg = (themeBg) => bg ?? themeBg;
+  const resolveText = (themeText) => textColor ?? themeText;
+
+  let background;
+  let text;
+
+  switch (section.type) {
+    case 'announcement-bar':
+    case 'newsletter':
+      background = resolveBg(primary);
+      text = resolveText(textOnPrimary);
+      break;
+    case 'hero':
+      background = resolveBg(secondary);
+      text = resolveText(TEXT_ON_LIGHT);
+      break;
+    case 'header':
+    case 'rich-text':
+    case 'image-with-text':
+    case 'featured-collection':
+    case 'product-grid':
+    case 'testimonial':
+      background = resolveBg('#ffffff');
+      text = resolveText(section.type === 'footer' ? TEXT_MUTED : TEXT_ON_LIGHT);
+      break;
+    case 'footer':
+      background = resolveBg('#ffffff');
+      text = resolveText(TEXT_MUTED);
+      break;
+    default:
+      background = resolveBg('#ffffff');
+      text = resolveText(TEXT_ON_LIGHT);
+  }
+
+  return { background, text };
+}
+
+export async function exportThemeAsZip(sections, themeColors = {}) {
   const zip = new JSZip();
 
   zip.file('layout/theme.liquid', LAYOUT_THEME);
@@ -332,10 +407,16 @@ export async function exportThemeAsZip(sections) {
   };
 
   sections.forEach((section, index) => {
+    const { background, text } = getEffectiveColors(section, themeColors);
     const sectionId = `${section.type.replace(/[^a-z0-9]/gi, '_')}_${index + 1}`;
+    const settings = { ...section.settings, background, text_color: text };
+    if (section.type === 'announcement-bar') {
+      settings.color = text;
+      delete settings.text_color;
+    }
     templateData.sections[sectionId] = {
       type: section.type,
-      settings: section.settings,
+      settings,
     };
     templateData.order.push(sectionId);
   });
