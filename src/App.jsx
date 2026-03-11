@@ -13,6 +13,7 @@ import {
   ChevronUp,
   ChevronDown,
   Package,
+  Palette,
 } from 'lucide-react';
 import { exportThemeAsZip } from './themeExport';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -228,6 +229,15 @@ function copyText(value) {
   navigator.clipboard.writeText(value);
 }
 
+function getContrastColor(hex) {
+  if (!hex || hex.length < 7) return '#ffffff';
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const luminance = 0.299 * r + 0.589 * g + 0.114 * b;
+  return luminance > 0.5 ? '#18181b' : '#ffffff';
+}
+
 function downloadFile(filename, content, type = 'text/plain') {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -286,12 +296,18 @@ function FieldRenderer({ field, value, onChange }) {
   );
 }
 
-function SectionPreview({ section }) {
+const TEXT_ON_LIGHT = '#171717';
+const TEXT_MUTED = '#525252';
+
+function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary: '#FDF8EE' } }) {
   const { type, settings } = section;
+  const primary = themeColors.primary || '#E94D4D';
+  const secondary = themeColors.secondary || '#FDF8EE';
+  const textOnPrimary = getContrastColor(primary);
 
   if (type === 'announcement-bar') {
     return (
-      <div className="px-4 py-3 text-sm" style={{ background: settings.background, color: settings.color }}>
+      <div className="px-4 py-3 text-sm text-center font-medium" style={{ background: primary, color: textOnPrimary }}>
         {settings.text}
       </div>
     );
@@ -299,10 +315,10 @@ function SectionPreview({ section }) {
 
   if (type === 'header') {
     return (
-      <div className="border border-zinc-200 bg-white px-5 py-4">
+      <div className="border-b border-zinc-200 bg-white px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-lg font-semibold">{settings.logoText}</div>
-          <div className="flex flex-wrap gap-4 text-sm text-zinc-600">
+          <div className="text-lg font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.logoText}</div>
+          <div className="flex flex-wrap gap-4 text-sm" style={{ color: TEXT_MUTED }}>
             {String(settings.menu)
               .split(',')
               .map((item) => item.trim())
@@ -325,10 +341,10 @@ function SectionPreview({ section }) {
         : 'items-start text-left';
 
     return (
-      <div className={`flex min-h-[260px] flex-col justify-center border border-zinc-200 bg-zinc-50 p-8 ${alignment}`}>
-        <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-zinc-900">{settings.heading}</h2>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-600">{settings.subheading}</p>
-        <button className="mt-6 border border-zinc-900 bg-zinc-900 px-5 py-3 text-sm font-medium text-white">
+      <div className={`flex min-h-[260px] flex-col justify-center p-8 ${alignment}`} style={{ background: secondary }}>
+        <h2 className="max-w-2xl text-3xl font-bold tracking-tight" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h2>
+        <p className="mt-3 max-w-2xl text-sm" style={{ color: TEXT_MUTED }}>{settings.subheading}</p>
+        <button className="mt-6 px-5 py-3 text-sm font-semibold" style={{ background: primary, color: textOnPrimary }}>
           {settings.buttonText}
         </button>
       </div>
@@ -337,24 +353,24 @@ function SectionPreview({ section }) {
 
   if (type === 'rich-text') {
     return (
-      <div className="border border-zinc-200 bg-white p-8">
-        <h3 className="text-2xl font-semibold text-zinc-900">{settings.heading}</h3>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">{settings.body}</p>
+      <div className="border-b border-zinc-200 bg-white p-8">
+        <h3 className="text-2xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
+        <p className="mt-3 text-sm leading-6" style={{ color: TEXT_MUTED }}>{settings.body}</p>
       </div>
     );
   }
 
   if (type === 'image-with-text') {
     return (
-      <div className="grid gap-4 border border-zinc-200 bg-white p-4 md:grid-cols-2 md:p-6">
+      <div className="grid gap-4 border-b border-zinc-200 bg-white p-4 md:grid-cols-2 md:p-6">
         <img
           src={settings.imageUrl}
           alt={settings.heading}
           className="h-64 w-full object-cover"
         />
         <div className="flex flex-col justify-center">
-          <h3 className="text-2xl font-semibold text-zinc-900">{settings.heading}</h3>
-          <p className="mt-3 text-sm leading-6 text-zinc-600">{settings.body}</p>
+          <h3 className="text-2xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
+          <p className="mt-3 text-sm leading-6" style={{ color: TEXT_MUTED }}>{settings.body}</p>
         </div>
       </div>
     );
@@ -363,8 +379,8 @@ function SectionPreview({ section }) {
   if (type === 'featured-collection' || type === 'product-grid') {
     const count = Math.max(1, Math.min(Number(settings.productsToShow || 4), 8));
     return (
-      <div className="border border-zinc-200 bg-white p-6">
-        <h3 className="text-xl font-semibold text-zinc-900">{settings.heading}</h3>
+      <div className="border-b border-zinc-200 bg-white p-6">
+        <h3 className="text-xl font-semibold" style={{ color: TEXT_ON_LIGHT }}>{settings.heading}</h3>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: count }).map((_, idx) => (
             <div key={idx} className="border border-zinc-200 p-3">
@@ -380,27 +396,28 @@ function SectionPreview({ section }) {
 
   if (type === 'testimonial') {
     return (
-      <div className="border border-zinc-200 bg-white p-8">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">{settings.heading}</p>
-        <blockquote className="mt-4 text-xl font-medium leading-8 text-zinc-900">“{settings.quote}”</blockquote>
-        <p className="mt-4 text-sm text-zinc-600">— {settings.author}</p>
+      <div className="border-b border-zinc-200 bg-white p-8">
+        <p className="text-sm font-medium uppercase tracking-[0.2em]" style={{ color: TEXT_MUTED }}>{settings.heading}</p>
+        <blockquote className="mt-4 text-xl font-medium leading-8" style={{ color: TEXT_ON_LIGHT }}>“{settings.quote}”</blockquote>
+        <p className="mt-4 text-sm" style={{ color: TEXT_MUTED }}>— {settings.author}</p>
       </div>
     );
   }
 
   if (type === 'newsletter') {
     return (
-      <div className="border border-zinc-900 bg-zinc-900 p-8 text-white">
-        <h3 className="text-2xl font-semibold">{settings.heading}</h3>
-        <p className="mt-3 max-w-xl text-sm text-zinc-300">{settings.body}</p>
+      <div className="p-8" style={{ background: primary }}>
+        <h3 className="text-2xl font-semibold" style={{ color: textOnPrimary }}>{settings.heading}</h3>
+        <p className="mt-3 max-w-xl text-sm" style={{ color: textOnPrimary, opacity: 0.9 }}>{settings.body}</p>
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <input
             disabled
-            className="h-12 flex-1 border border-zinc-700 bg-zinc-800 px-4 text-sm text-white"
+            className="h-12 flex-1 border px-4 text-sm"
+            style={{ borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: textOnPrimary }}
             value={settings.placeholder}
             readOnly
           />
-          <button className="border border-white bg-white px-5 py-3 text-sm font-medium text-zinc-900">
+          <button className="px-5 py-3 text-sm font-semibold" style={{ background: '#ffffff', color: primary }}>
             {settings.buttonText}
           </button>
         </div>
@@ -410,10 +427,10 @@ function SectionPreview({ section }) {
 
   if (type === 'footer') {
     return (
-      <div className="border border-zinc-200 bg-white p-6">
+      <div className="border-t border-zinc-200 bg-white p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-zinc-600">{settings.copyright}</p>
-          <div className="flex flex-wrap gap-4 text-sm text-zinc-500">
+          <p className="text-sm" style={{ color: TEXT_MUTED }}>{settings.copyright}</p>
+          <div className="flex flex-wrap gap-4 text-sm" style={{ color: TEXT_MUTED }}>
             {String(settings.links)
               .split(',')
               .map((item) => item.trim())
@@ -430,7 +447,10 @@ function SectionPreview({ section }) {
   return null;
 }
 
+const DEFAULT_THEME = { primary: '#E94D4D', secondary: '#FDF8EE' };
+
 export default function LiquidEditorApp() {
+  const [themeColors, setThemeColors] = useState(DEFAULT_THEME);
   const [sections, setSections] = useState([
     createInstance(COMPONENT_LIBRARY.find((x) => x.type === 'announcement-bar')),
     createInstance(COMPONENT_LIBRARY.find((x) => x.type === 'header')),
@@ -510,7 +530,52 @@ export default function LiquidEditorApp() {
   return (
     <div className="min-h-screen bg-zinc-100 text-zinc-900">
       <div className="mx-auto grid max-w-[1600px] gap-4 p-4 lg:grid-cols-[300px_minmax(0,1fr)_340px]">
-        <Card>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Palette className="h-5 w-5" />
+                Theme Colors
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-600">Primary</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={themeColors.primary}
+                    onChange={(e) => setThemeColors((t) => ({ ...t, primary: e.target.value }))}
+                    className="h-9 w-14 cursor-pointer border border-zinc-200 bg-white p-0"
+                  />
+                  <input
+                    type="text"
+                    value={themeColors.primary}
+                    onChange={(e) => setThemeColors((t) => ({ ...t, primary: e.target.value }))}
+                    className="flex-1 border border-zinc-200 bg-white px-2 py-1.5 text-xs font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-600">Secondary</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={themeColors.secondary}
+                    onChange={(e) => setThemeColors((t) => ({ ...t, secondary: e.target.value }))}
+                    className="h-9 w-14 cursor-pointer border border-zinc-200 bg-white p-0"
+                  />
+                  <input
+                    type="text"
+                    value={themeColors.secondary}
+                    onChange={(e) => setThemeColors((t) => ({ ...t, secondary: e.target.value }))}
+                    className="flex-1 border border-zinc-200 bg-white px-2 py-1.5 text-xs font-mono"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <LayoutTemplate className="h-5 w-5" />
@@ -540,6 +605,7 @@ export default function LiquidEditorApp() {
             ))}
           </CardContent>
         </Card>
+        </div>
 
         <div className="space-y-4">
           <Card>
@@ -620,13 +686,13 @@ export default function LiquidEditorApp() {
               </CardHeader>
               <CardContent>
                 {viewMode === 'preview' ? (
-                  <div className="space-y-4 border border-zinc-200 bg-zinc-50 p-4">
+                  <div className="space-y-0 border border-zinc-200 p-0" style={{ background: themeColors.secondary }}>
                     {sections.length === 0 ? (
-                      <div className="border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
+                      <div className="border border-dashed border-zinc-300 p-10 text-center text-sm text-zinc-500">
                         Add components from the left panel to start building your page.
                       </div>
                     ) : (
-                      sections.map((section) => <SectionPreview key={section.id} section={section} />)
+                      sections.map((section) => <SectionPreview key={section.id} section={section} themeColors={themeColors} />)
                     )}
                   </div>
                 ) : (
