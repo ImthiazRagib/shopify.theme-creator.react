@@ -27,6 +27,7 @@ export const COMPONENT_LIBRARY = [
     defaults: {
       heading: 'Build your next Shopify section visually',
       subheading: 'Drag, edit, reorder, and export your page layout structure.',
+      imageUrl: '',
       buttonText: 'Shop now',
       buttonLink: '/collections/all',
       align: 'left',
@@ -122,6 +123,7 @@ export const fieldConfigByType = {
   hero: [
     { key: 'heading', label: 'Heading', type: 'text' },
     { key: 'subheading', label: 'Subheading', type: 'textarea' },
+    { key: 'imageUrl', label: 'Banner Image', type: 'image' },
     { key: 'buttonText', label: 'Button Text', type: 'text' },
     { key: 'buttonLink', label: 'Button Link', type: 'text' },
     { key: 'align', label: 'Alignment', type: 'select', options: ['left', 'center', 'right'] },

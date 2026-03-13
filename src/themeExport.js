@@ -34,6 +34,7 @@ const SECTION_SCHEMAS = {
     settings: [
       { type: 'text', id: 'heading', label: 'Heading', default: 'Build your next Shopify section visually' },
       { type: 'textarea', id: 'subheading', label: 'Subheading', default: 'Drag, edit, reorder, and export your page layout structure.' },
+      { type: 'text', id: 'imageUrl', label: 'Banner Image URL', default: '' },
       { type: 'text', id: 'buttonText', label: 'Button Text', default: 'Shop now' },
       { type: 'url', id: 'buttonLink', label: 'Button Link', default: '/collections/all' },
       { type: 'select', id: 'align', label: 'Alignment', default: 'left', options: [
@@ -136,7 +137,7 @@ function generateSectionLiquid(type) {
 
   const templates = {
     'announcement-bar': `<div class="announcement-bar" style="background: {{ section.settings.background }}; color: {{ section.settings.color }};">
-  <div class="page-width">
+  <div class="page-width announcement-bar__inner">
     <p class="announcement-bar__text">{{ section.settings.text }}</p>
   </div>
 </div>`,
@@ -159,7 +160,7 @@ function generateSectionLiquid(type) {
     </div>
   </div>
 </header>`,
-    hero: `<section class="hero hero--{{ section.settings.align }}" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
+    hero: `<section class="hero hero--{{ section.settings.align }}" {% if section.settings.imageUrl != blank %}style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url({{ section.settings.imageUrl }}) center/cover;"{% elsif section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
     <h1 class="hero__heading" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>{{ section.settings.heading }}</h1>
     <p class="hero__subheading" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }}; opacity: 0.8;"{% endif %}>{{ section.settings.subheading }}</p>
@@ -344,7 +345,8 @@ const LAYOUT_THEME = `<!DOCTYPE html>
 
 const ASSETS_BASE_CSS = `/* Theme Creator - Base Styles */
 .page-width { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-.announcement-bar { padding: 12px; text-align: center; font-size: 14px; }
+.announcement-bar { padding: 12px; font-size: 14px; }
+.announcement-bar__inner { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
 .section-header .header__inner { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
 .header__logo { font-size: 1.25rem; font-weight: 600; text-decoration: none; color: inherit; display: flex; align-items: center; }
 .header__logo-img { height: 40px; width: auto; max-width: 140px; object-fit: contain; object-position: left center; display: block; }
@@ -464,10 +466,13 @@ function getEffectiveColors(section, themeColors = {}) {
       background = resolveBg(primary);
       text = resolveText(textOnPrimary);
       break;
-    case 'hero':
+    case 'hero': {
+      const hasHeroImage = section.settings?.imageUrl && String(section.settings.imageUrl).trim().length > 0;
+      const defaultText = hasHeroImage ? '#ffffff' : TEXT_ON_LIGHT;
       background = resolveBg(secondary);
-      text = resolveText(TEXT_ON_LIGHT);
+      text = resolveText(defaultText);
       break;
+    }
     case 'header':
     case 'rich-text':
     case 'image-with-text':

@@ -16,8 +16,8 @@ export function SectionPreview({ section, themeColors = { primary: '#E94D4D', se
 
   if (type === 'announcement-bar') {
     return (
-      <div className="px-4 py-3 text-sm text-center font-medium" style={{ background: resolveBg(primary), color: resolveText(textOnPrimary) }}>
-        {settings.text}
+      <div className="flex items-center justify-center px-4 py-3 text-sm font-medium" style={{ background: resolveBg(primary), color: resolveText(textOnPrimary) }}>
+        <span className="text-center">{settings.text}</span>
       </div>
     );
   }
@@ -55,12 +55,20 @@ export function SectionPreview({ section, themeColors = { primary: '#E94D4D', se
         : settings.align === 'right'
         ? 'items-end text-right'
         : 'items-start text-left';
+    const hasImage = settings.imageUrl && String(settings.imageUrl).trim().length > 0;
+    const textColor = hasImage ? '#ffffff' : resolveText(TEXT_ON_LIGHT);
+    const subColor = hasImage ? 'rgba(255,255,255,0.9)' : resolveText(TEXT_MUTED);
 
     return (
-      <div className={`flex min-h-[260px] flex-col justify-center p-8 ${alignment}`} style={{ background: resolveBg(secondary) }}>
-        <h2 className="max-w-2xl text-3xl font-bold tracking-tight" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.heading}</h2>
-        <p className="mt-3 max-w-2xl text-sm" style={{ color: resolveText(TEXT_MUTED) }}>{settings.subheading}</p>
-        <button className="mt-6 px-5 py-3 text-sm font-semibold" style={{ background: primary, color: textOnPrimary }}>
+      <div
+        className={`relative flex min-h-[260px] flex-col justify-center overflow-hidden p-8 ${alignment}`}
+        style={{
+          background: hasImage ? `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${settings.imageUrl}) center/cover` : resolveBg(secondary),
+        }}
+      >
+        <h2 className="relative max-w-2xl text-3xl font-bold tracking-tight" style={{ color: textColor }}>{settings.heading}</h2>
+        <p className="relative mt-3 max-w-2xl text-sm" style={{ color: subColor }}>{settings.subheading}</p>
+        <button className="relative mt-6 px-5 py-3 text-sm font-semibold" style={{ background: primary, color: textOnPrimary }}>
           {settings.buttonText}
         </button>
       </div>
