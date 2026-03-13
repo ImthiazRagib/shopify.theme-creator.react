@@ -44,6 +44,7 @@ const COMPONENT_LIBRARY = [
     category: 'Header',
     defaults: {
       logoText: 'Your Store',
+      logoUrl: '',
       menu: 'Home, Shop, About, Contact',
       sticky: true,
     },
@@ -129,6 +130,7 @@ const COMPONENT_LIBRARY = [
     category: 'Footer',
     defaults: {
       copyright: '© 2026 Your Store',
+      logoUrl: '',
       links: 'Privacy Policy, Terms of Service, Contact',
     },
   },
@@ -141,7 +143,8 @@ const fieldConfigByType = {
     { key: 'color', label: 'Text Color', type: 'text' },
   ],
   header: [
-    { key: 'logoText', label: 'Logo Text', type: 'text' },
+    { key: 'logoText', label: 'Logo Text (fallback)', type: 'text' },
+    { key: 'logoUrl', label: 'Logo Image', type: 'image' },
     { key: 'menu', label: 'Menu Items (comma separated)', type: 'textarea' },
     { key: 'sticky', label: 'Sticky Header', type: 'boolean' },
   ],
@@ -183,6 +186,7 @@ const fieldConfigByType = {
   ],
   footer: [
     { key: 'copyright', label: 'Copyright', type: 'text' },
+    { key: 'logoUrl', label: 'Logo Image', type: 'image' },
     { key: 'links', label: 'Footer Links (comma separated)', type: 'textarea' },
   ],
 };
@@ -293,6 +297,48 @@ function FieldRenderer({ field, value, onChange }) {
           </option>
         ))}
       </select>
+    );
+  }
+
+  if (field.type === 'image') {
+    const hasImage = value && String(value).trim().length > 0;
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Input
+            type="url"
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://... or upload below"
+            className="flex-1 text-sm"
+          />
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = () => onChange(reader.result);
+                  reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+              }}
+            />
+            <span className="inline-flex items-center border border-zinc-200 bg-white px-3 py-2 text-xs font-medium hover:bg-zinc-50">
+              Upload
+            </span>
+          </label>
+        </div>
+        {hasImage && (
+          <div className="flex items-center gap-2">
+            <img src={value} alt="Preview" className="h-16 w-auto max-w-[120px] object-contain border border-zinc-200" />
+            <Button variant="ghost" size="sm" onClick={() => onChange('')} className="text-red-600">Remove</Button>
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -421,10 +467,17 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
   }
 
   if (type === 'header') {
+    const hasLogo = settings.logoUrl && String(settings.logoUrl).trim().length > 0;
     return (
       <div className="border-b border-zinc-200 px-5 py-4" style={{ background: resolveBg('#ffffff') }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-lg font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.logoText}</div>
+          <a href="/" className="flex shrink-0 items-center">
+            {hasLogo ? (
+              <img src={settings.logoUrl} alt={settings.logoText || 'Logo'} className="header__logo-img h-10 w-auto max-w-[140px] object-contain object-left md:h-12 md:max-w-[180px]" />
+            ) : (
+              <span className="text-lg font-semibold" style={{ color: resolveText(TEXT_ON_LIGHT) }}>{settings.logoText}</span>
+            )}
+          </a>
           <div className="flex flex-wrap gap-4 text-sm" style={{ color: resolveText(TEXT_MUTED) }}>
             {String(settings.menu)
               .split(',')
@@ -537,10 +590,18 @@ function SectionPreview({ section, themeColors = { primary: '#E94D4D', secondary
   }
 
   if (type === 'footer') {
+    const hasLogo = settings.logoUrl && String(settings.logoUrl).trim().length > 0;
     return (
       <div className="border-t border-zinc-200 p-6" style={{ background: resolveBg('#ffffff') }}>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm" style={{ color: resolveText(TEXT_MUTED) }}>{settings.copyright}</p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2">
+            {hasLogo && (
+              <a href="/" className="inline-block">
+                <img src={settings.logoUrl} alt="Logo" className="footer__logo-img h-8 w-auto max-w-[100px] object-contain object-left md:h-10 md:max-w-[120px]" />
+              </a>
+            )}
+            <p className="text-sm" style={{ color: resolveText(TEXT_MUTED) }}>{settings.copyright}</p>
+          </div>
           <div className="flex flex-wrap gap-4 text-sm" style={{ color: resolveText(TEXT_MUTED) }}>
             {String(settings.links)
               .split(',')

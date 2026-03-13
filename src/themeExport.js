@@ -21,7 +21,8 @@ const SECTION_SCHEMAS = {
   header: {
     name: 'Header',
     settings: [
-      { type: 'text', id: 'logoText', label: 'Logo Text', default: 'Your Store' },
+      { type: 'text', id: 'logoText', label: 'Logo Text (fallback)', default: 'Your Store' },
+      { type: 'text', id: 'logoUrl', label: 'Logo Image URL', default: '' },
       { type: 'textarea', id: 'menu', label: 'Menu Items (comma separated)', default: 'Home, Shop, About, Contact' },
       { type: 'checkbox', id: 'sticky', label: 'Sticky Header', default: true },
       { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
@@ -107,6 +108,7 @@ const SECTION_SCHEMAS = {
     name: 'Footer',
     settings: [
       { type: 'text', id: 'copyright', label: 'Copyright', default: '© 2026 Your Store' },
+      { type: 'text', id: 'logoUrl', label: 'Logo Image URL', default: '' },
       { type: 'textarea', id: 'links', label: 'Footer Links (comma separated)', default: 'Privacy Policy, Terms of Service, Contact' },
       { type: 'color', id: 'background', label: 'Background', default: '#ffffff' },
       { type: 'color', id: 'text_color', label: 'Text Color', default: '#525252' },
@@ -141,7 +143,13 @@ function generateSectionLiquid(type) {
     header: `<header class="section-header" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
     <div class="header__inner" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
-      <a href="/" class="header__logo">{{ section.settings.logoText }}</a>
+      <a href="/" class="header__logo">
+        {% if section.settings.logoUrl != blank %}
+          <img src="{{ section.settings.logoUrl }}" alt="{{ section.settings.logoText | default: 'Logo' }}" class="header__logo-img" loading="eager" width="180" height="48">
+        {% else %}
+          {{ section.settings.logoText }}
+        {% endif %}
+      </a>
       <nav class="header__nav">
         {% assign menu_items = section.settings.menu | split: ',' %}
         {% for item in menu_items %}
@@ -292,7 +300,14 @@ function generateSectionLiquid(type) {
     footer: `<footer class="section-footer" {% if section.settings.background != blank %}style="background: {{ section.settings.background }};"{% endif %}>
   <div class="page-width">
     <div class="footer__inner" {% if section.settings.text_color != blank %}style="color: {{ section.settings.text_color }};"{% endif %}>
-      <p class="footer__copyright">{{ section.settings.copyright }}</p>
+      <div class="footer__brand">
+        {% if section.settings.logoUrl != blank %}
+          <a href="/" class="footer__logo-link">
+            <img src="{{ section.settings.logoUrl }}" alt="Logo" class="footer__logo-img" loading="lazy" width="120" height="40">
+          </a>
+        {% endif %}
+        <p class="footer__copyright">{{ section.settings.copyright }}</p>
+      </div>
       <div class="footer__links">
         {% assign link_items = section.settings.links | split: ',' %}
         {% for item in link_items %}
@@ -330,8 +345,10 @@ const LAYOUT_THEME = `<!DOCTYPE html>
 const ASSETS_BASE_CSS = `/* Theme Creator - Base Styles */
 .page-width { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .announcement-bar { padding: 12px; text-align: center; font-size: 14px; }
-.section-header .header__inner { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
-.header__logo { font-size: 1.25rem; font-weight: 600; text-decoration: none; color: inherit; }
+.section-header .header__inner { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+.header__logo { font-size: 1.25rem; font-weight: 600; text-decoration: none; color: inherit; display: flex; align-items: center; }
+.header__logo-img { height: 40px; width: auto; max-width: 140px; object-fit: contain; object-position: left center; display: block; }
+@media (min-width: 768px) { .header__logo-img { height: 48px; max-width: 180px; } }
 .header__nav { display: flex; gap: 24px; flex-wrap: wrap; }
 .header__link { font-size: 14px; color: #6b7280; text-decoration: none; }
 .hero { min-height: 300px; padding: 48px 0; display: flex; align-items: center; }
@@ -394,6 +411,10 @@ const ASSETS_BASE_CSS = `/* Theme Creator - Base Styles */
 .section-footer { padding: 24px 0; border-top: 1px solid #e5e7eb; }
 .footer__inner { display: flex; flex-direction: column; gap: 12px; }
 @media (min-width: 768px) { .footer__inner { flex-direction: row; justify-content: space-between; align-items: center; } }
+.footer__brand { display: flex; flex-direction: column; gap: 8px; }
+.footer__logo-link { display: inline-block; }
+.footer__logo-img { height: 32px; width: auto; max-width: 100px; object-fit: contain; object-position: left center; display: block; }
+@media (min-width: 768px) { .footer__logo-img { height: 40px; max-width: 120px; } }
 .footer__copyright { font-size: 14px; color: #6b7280; margin: 0; }
 .footer__links { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; }
 .footer__link { color: #6b7280; text-decoration: none; }
